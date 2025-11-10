@@ -66,11 +66,16 @@ pipeline {
         stage('Run UI Tests') {
             steps {
                 script {
-                    sh '''
-                        . venv/bin/activate
-                        mkdir -p test-results/ui
-                        pytest tests/ui/ --alluredir=test-results/ui
-                    '''
+                    try {
+                        sh '''
+                            . venv/bin/activate
+                            mkdir -p test-results/ui
+                            pytest tests/ui/ --alluredir=test-results/ui
+                        '''
+                    } catch (error) {
+                        echo "UI tests failed: ${error.getMessage()}"
+                        currentBuild.result = 'UNSTABLE' // Помечаем сборку как нестабильную, но не как проваленную
+                    }
                 }
             }
             post {

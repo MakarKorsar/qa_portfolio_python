@@ -1,14 +1,23 @@
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import allure
 
 @pytest.fixture(scope="module")
 def browser():
+    # Настройки для headless режима
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Запуск без GUI
+    chrome_options.add_argument("--no-sandbox")  # Обход проблем в контейнере/CI
+    chrome_options.add_argument("--disable-dev-shm-usage")  # Обход проблем с памятью
+    chrome_options.add_argument("--disable-gpu")  # Отключение GPU (важно для headless)
+    chrome_options.add_argument("--window-size=1920,1080")  # Установка размера окна
+    
     # Используем webdriver_manager для автоматической установки драйвера
     service = ChromeService(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     driver.implicitly_wait(10)
     yield driver
     driver.quit() # Закрываем браузер после всех тестов в модуле
