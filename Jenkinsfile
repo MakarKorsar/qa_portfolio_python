@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        // Указываем, что мы хотим использовать определенную версию Python
-        python 'Python-3.9'
-    }
-
     parameters {
         string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Ветка для сборки')
     }
@@ -30,7 +25,7 @@ pipeline {
             steps {
                 // Устанавливаем Python зависимости
                 sh '''
-                    python -m venv venv
+                    python3 -m venv venv
                     source venv/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
