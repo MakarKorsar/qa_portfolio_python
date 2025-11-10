@@ -26,7 +26,7 @@ pipeline {
                 // Устанавливаем Python зависимости
                 sh '''
                     python3 -m venv venv
-                    . venv/bin/activate  # Используем . вместо source
+                    . venv/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
                     # Устанавливаем pytest и allure-pytest
@@ -39,7 +39,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        . venv/bin/activate  # Используем . вместо source
+                        . venv/bin/activate
                         mkdir -p test-results/api
                         pytest tests/api/ --alluredir=test-results/api
                     '''
@@ -48,11 +48,17 @@ pipeline {
             post {
                 always {
                     // Публикуем результаты тестов
-                    allure([
-                        includeProperties: false,
-                        jdk: '',
-                        results: [[path: 'test-results/api']]
-                    ])
+                    script {
+                        try {
+                            allure([
+                                includeProperties: false,
+                                jdk: '',
+                                results: [[path: 'test-results/api']]
+                            ])
+                        } catch (Exception e) {
+                            echo "Allure plugin may not be installed or configured: ${e.getMessage()}"
+                        }
+                    }
                 }
             }
         }
@@ -61,7 +67,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        . venv/bin/activate  # Используем . вместо source
+                        . venv/bin/activate
                         mkdir -p test-results/ui
                         pytest tests/ui/ --alluredir=test-results/ui
                     '''
@@ -70,11 +76,17 @@ pipeline {
             post {
                 always {
                     // Публикуем результаты тестов
-                    allure([
-                        includeProperties: false,
-                        jdk: '',
-                        results: [[path: 'test-results/ui']]
-                    ])
+                    script {
+                        try {
+                            allure([
+                                includeProperties: false,
+                                jdk: '',
+                                results: [[path: 'test-results/ui']]
+                            ])
+                        } catch (Exception e) {
+                            echo "Allure plugin may not be installed or configured: ${e.getMessage()}"
+                        }
+                    }
                 }
             }
         }
@@ -94,11 +106,17 @@ pipeline {
             post {
                 always {
                     // Публикуем комбинированный отчет
-                    allure([
-                        includeProperties: false,
-                        jdk: '',
-                        results: [[path: 'test-results/combined']]
-                    ])
+                    script {
+                        try {
+                            allure([
+                                includeProperties: false,
+                                jdk: '',
+                                results: [[path: 'test-results/combined']]
+                            ])
+                        } catch (Exception e) {
+                            echo "Allure plugin may not be installed or configured: ${e.getMessage()}"
+                        }
+                    }
                 }
             }
         }
@@ -108,7 +126,6 @@ pipeline {
         always {
             // Архивируем результаты тестов
             archiveArtifacts artifacts: 'test-results/**', fingerprint: true
-            // Публикуем отчеты - убираем publishHTML, т.к. плагин не установлен
         }
         success {
             echo 'Тесты успешно пройдены!'
