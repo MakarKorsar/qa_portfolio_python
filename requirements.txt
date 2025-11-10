@@ -1,3 +1,5 @@
 pytest
 selenium
 requests
+allure-pytest
+allure-python-commons
