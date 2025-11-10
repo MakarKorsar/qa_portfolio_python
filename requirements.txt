@@ -4,3 +4,4 @@ requests
 allure-pytest
 allure-python-commons
 webdriver-manager
+jsonschema
