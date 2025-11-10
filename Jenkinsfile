@@ -26,7 +26,7 @@ pipeline {
                 // Устанавливаем Python зависимости
                 sh '''
                     python3 -m venv venv
-                    source venv/bin/activate
+                    . venv/bin/activate  # Используем . вместо source
                     pip install --upgrade pip
                     pip install -r requirements.txt
                     # Устанавливаем pytest и allure-pytest
@@ -39,7 +39,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        source venv/bin/activate
+                        . venv/bin/activate  # Используем . вместо source
                         mkdir -p test-results/api
                         pytest tests/api/ --alluredir=test-results/api
                     '''
@@ -61,7 +61,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        source venv/bin/activate
+                        . venv/bin/activate  # Используем . вместо source
                         mkdir -p test-results/ui
                         pytest tests/ui/ --alluredir=test-results/ui
                     '''
@@ -84,7 +84,7 @@ pipeline {
                 script {
                     // Генерируем Allure отчет из всех результатов тестов
                     sh '''
-                        source venv/bin/activate
+                        . venv/bin/activate
                         mkdir -p test-results/combined
                         cp -r test-results/api/* test-results/combined/ 2>/dev/null || true
                         cp -r test-results/ui/* test-results/combined/ 2>/dev/null || true
@@ -108,15 +108,7 @@ pipeline {
         always {
             // Архивируем результаты тестов
             archiveArtifacts artifacts: 'test-results/**', fingerprint: true
-            // Публикуем отчеты
-            publishHTML([
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'allure-report',
-                reportFiles: 'index.html',
-                reportName: 'Allure Report'
-            ])
+            // Публикуем отчеты - убираем publishHTML, т.к. плагин не установлен
         }
         success {
             echo 'Тесты успешно пройдены!'
