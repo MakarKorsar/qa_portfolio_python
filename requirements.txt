@@ -2,4 +2,4 @@ pytest
 selenium
 requests
 allure-pytest
-allure-python-commons
+allure-python-commonswebdriver-manager
